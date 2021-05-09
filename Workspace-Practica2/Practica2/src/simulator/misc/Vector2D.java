@@ -9,7 +9,7 @@ public class Vector2D {
 
 	// create the zero vector
 	public Vector2D() {
-		_x = _y = 0.0;
+		_x = _y = 0;
 	}
 
 	// copy constructor

@@ -1,5 +1,13 @@
 package simulator.launcher;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -9,16 +17,17 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.json.JSONObject;
 
+import simulator.control.Controller;
 import simulator.control.StateComparator;
-import simulator.factories.Factory;
-import simulator.model.Body;
-import simulator.model.ForceLaws;
+import simulator.factories.*;
+import simulator.model.*;
 
 public class Main {
 
 	// default values for some parameters
 	//
 	private final static Double _dtimeDefaultValue = 2500.0;
+	private final static int _stepsDefaultValue = 150;
 	private final static String _forceLawsDefaultValue = "nlug";
 	private final static String _stateComparatorDefaultValue = "epseq";
 
@@ -26,20 +35,33 @@ public class Main {
 	//
 	private static Double _dtime = null;
 	private static String _inFile = null;
+	private static String _outFile = null;
+	private static String _expectedOut = null;
 	private static JSONObject _forceLawsInfo = null;
 	private static JSONObject _stateComparatorInfo = null;
+	private static int _steps = _stepsDefaultValue;
 
 	// factories
 	private static Factory<Body> _bodyFactory;
 	private static Factory<ForceLaws> _forceLawsFactory;
 	private static Factory<StateComparator> _stateComparatorFactory;
 
-	private static void init() {
-		// TODO initialize the bodies factory
-
-		// TODO initialize the force laws factory
-
-		// TODO initialize the state comparator
+	private static void init() { // Creamos e inicializamos las factorias body, forceLaws y stateComparator
+		ArrayList<Builder<Body>> bodyBuilders = new ArrayList<>();
+		bodyBuilders.add(new BasicBodyBuilder());
+		bodyBuilders.add(new MassLosingBodyBuilder());
+		_bodyFactory = new BuilderBasedFactory<Body>(bodyBuilders);
+		
+		ArrayList<Builder<ForceLaws>> forceLawsBuilders = new ArrayList<>();
+		forceLawsBuilders.add(new NewtonUniversalGravitationBuilder());
+		forceLawsBuilders.add(new MovingTowardsFixedPointBuilder());
+		forceLawsBuilders.add(new NoForceBuilder());
+		_forceLawsFactory = new BuilderBasedFactory<ForceLaws>(forceLawsBuilders);
+				
+		ArrayList<Builder<StateComparator>> stateComparatorBuilders = new ArrayList<>();
+		stateComparatorBuilders.add(new MassEqualStatesBuilder());
+		stateComparatorBuilders.add(new EpsilonEqualStatesBuilder());
+		_stateComparatorFactory = new BuilderBasedFactory<StateComparator>(stateComparatorBuilders);
 	}
 
 	private static void parseArgs(String[] args) {
@@ -57,6 +79,9 @@ public class Main {
 			parseHelpOption(line, cmdLineOptions);
 			parseInFileOption(line);
 			// TODO add support of -o, -eo, and -s (define corresponding parse methods)
+			parseOutFileOption(line);
+			parseExpectedOutFileOption(line);
+			parseSteps(line);
 
 			parseDeltaTimeOption(line);
 			parseForceLawsOption(line);
@@ -72,12 +97,10 @@ public class Main {
 					error += (" " + o);
 				throw new ParseException(error);
 			}
-
 		} catch (ParseException e) {
 			System.err.println(e.getLocalizedMessage());
 			System.exit(1);
 		}
-
 	}
 
 	private static Options buildOptions() {
@@ -91,6 +114,14 @@ public class Main {
 
 		// TODO add support for -o, -eo, and -s (add corresponding information to
 		// cmdLineOptions)
+		cmdLineOptions.addOption(Option.builder("o").longOpt("output").hasArg().desc(" Output file, where output is written. " + 
+				"Default value: the standard output.").build());
+		
+		cmdLineOptions.addOption(Option.builder("eo").longOpt("expected-output").hasArg().desc("The expected output file. If not provided " + 
+				"no comparison is applied").build());
+		
+		cmdLineOptions.addOption(Option.builder("s").longOpt("steps").hasArg().desc("An integer representing the number of " + 
+				"simulation steps. Default value: 150").build());
 
 		// delta-time
 		cmdLineOptions.addOption(Option.builder("dt").longOpt("delta-time").hasArg()
@@ -145,6 +176,18 @@ public class Main {
 		if (_inFile == null) {
 			throw new ParseException("In batch mode an input file of bodies is required");
 		}
+	}
+	
+	private static void parseOutFileOption(CommandLine line) throws ParseException {
+		_outFile = line.getOptionValue("o");
+	}
+	
+	private static void parseExpectedOutFileOption(CommandLine line) throws ParseException {
+		_expectedOut = line.getOptionValue("eo");
+	}
+	
+	private static void parseSteps(CommandLine line) throws ParseException {
+		_steps = Integer.parseInt(line.getOptionValue("s"));
 	}
 
 	private static void parseDeltaTimeOption(CommandLine line) throws ParseException {
@@ -212,7 +255,24 @@ public class Main {
 	}
 
 	private static void startBatchMode() throws Exception {
-		// TODO complete this method
+		PhysicsSimulator simulator = new PhysicsSimulator(_dtime, _forceLawsFactory.createInstance(_forceLawsInfo)); // Se crea el simulador
+		InputStream in = null, expOut = null;
+		try{ // Se crean los ficheros de entrada y se comprueba que existan 
+			in = new FileInputStream(_inFile);
+			if(_expectedOut != null) expOut = new FileInputStream(_expectedOut);
+		}catch(FileNotFoundException e) {
+			System.out.println(e.getMessage());
+			throw new Exception();
+		}
+		OutputStream out = System.out; // Se crea el fichero de salida y se comprueba que exista uno con ese nombre
+		if(_outFile != null) {  
+			out = new FileOutputStream(new File(_outFile));
+		}
+		StateComparator comp = null;
+		if(_expectedOut != null) comp  = _stateComparatorFactory.createInstance(_stateComparatorInfo); // Se crea el comparador
+		Controller controller = new Controller(_bodyFactory, simulator); // Se crea el controller
+		controller.loadBodies(in); // Se anyaden los cuerpos al simulador
+		controller.run(_steps, out, expOut, comp); // Se inicia el simulador
 	}
 
 	private static void start(String[] args) throws Exception {
