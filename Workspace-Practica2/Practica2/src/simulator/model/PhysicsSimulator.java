@@ -11,6 +11,7 @@ public class PhysicsSimulator {
 	private ForceLaws forceLaw;
 	private List<Body> bodyList;
 	private double currentTime;
+	private List<SimulatorObserver> observerList;
 	
 	public PhysicsSimulator(double t, ForceLaws f) throws IllegalArgumentException{ 
 		if(t > 0) // Solo se permite que se pase un tiempo positivo
@@ -24,6 +25,7 @@ public class PhysicsSimulator {
 		
 		currentTime = 0;
 		bodyList = new ArrayList<Body>();
+		observerList = new ArrayList<SimulatorObserver>();
 	}
 	
 	public void advance() { // Aplica un paso de simulacion
@@ -35,6 +37,10 @@ public class PhysicsSimulator {
 			body.move(stepTime);
 		}
 		currentTime += stepTime;
+		
+		for (SimulatorObserver o: observerList) {
+			o.onAdvance(bodyList, currentTime);
+		}
 	}
 	
 	public void addBody(Body b) throws IllegalArgumentException{ // A�ade el cuerpo b al simulador
@@ -44,6 +50,9 @@ public class PhysicsSimulator {
 			}
 		}
 		bodyList.add(b);
+		for (SimulatorObserver o: observerList) {
+			o.onBodyAdded(bodyList, b);
+		}
 	}
 	
 	public JSONObject getState() { // A�ade los atributos que indican el estado del simulador a un json
@@ -66,15 +75,32 @@ public class PhysicsSimulator {
 	public void reset() {
 		currentTime = 0.0;
 		bodyList.clear();
+		for (SimulatorObserver o: observerList) {
+			o.onReset(bodyList, currentTime, stepTime, forceLaw.toString());
+		}
 	}
 	
 	public void setDeltaTime(double dt) throws IllegalArgumentException{
 		if(dt <= 0) throw new IllegalArgumentException("Delta time must be grater than 0");
 		stepTime = dt;
+		for (SimulatorObserver o: observerList) {
+			o.onDeltaTimeChanged(stepTime);
+		}
 	}
 	
 	public void setForceLawsLaws(ForceLaws forceLaws) throws IllegalArgumentException{
 		if(forceLaws == null) throw new IllegalArgumentException("Null forceLaw received");
 		forceLaw = forceLaws;
+		for (SimulatorObserver o: observerList) {
+			o.onForceLawsChanged(forceLaw.toString());
+		}
+	}
+	
+	public void addObserver(SimulatorObserver o) {
+		if (!observerList.contains(o)) {
+			observerList.add(o);
+			o.onRegister(bodyList, currentTime, stepTime, forceLaw.toString());
+		}
+		
 	}
 }

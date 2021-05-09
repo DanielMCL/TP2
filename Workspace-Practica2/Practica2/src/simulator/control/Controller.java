@@ -53,4 +53,16 @@ public class Controller {
 		p.println("]");
 		p.println("}");
 	}
-}
+	
+	public void reset() {
+		_simulator.reset();
+	}
+	
+	public void setDeltaTime(double dt) {
+		_simulator.setDeltaTime(dt);
+	}
+	
+	public void addObserver(SimulatorObserver o) {
+		
+	}
+ }
