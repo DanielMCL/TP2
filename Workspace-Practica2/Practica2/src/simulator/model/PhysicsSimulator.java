@@ -88,7 +88,7 @@ public class PhysicsSimulator {
 		}
 	}
 	
-	public void setForceLawsLaws(ForceLaws forceLaws) throws IllegalArgumentException{
+	public void setForceLaws(ForceLaws forceLaws) throws IllegalArgumentException{
 		if(forceLaws == null) throw new IllegalArgumentException("Null forceLaw received");
 		forceLaw = forceLaws;
 		for (SimulatorObserver o: observerList) {
