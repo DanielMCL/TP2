@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -21,6 +23,7 @@ import simulator.control.Controller;
 import simulator.control.StateComparator;
 import simulator.factories.*;
 import simulator.model.*;
+import simulator.view.MainWindow;
 
 public class Main {
 
@@ -30,6 +33,7 @@ public class Main {
 	private final static int _stepsDefaultValue = 150;
 	private final static String _forceLawsDefaultValue = "nlug";
 	private final static String _stateComparatorDefaultValue = "epseq";
+	private final static String _modeDefaultValue = "batch";
 
 	// some attributes to stores values corresponding to command-line parameters
 	//
@@ -37,9 +41,11 @@ public class Main {
 	private static String _inFile = null;
 	private static String _outFile = null;
 	private static String _expectedOut = null;
+	private static String _mode;
 	private static JSONObject _forceLawsInfo = null;
 	private static JSONObject _stateComparatorInfo = null;
 	private static int _steps = _stepsDefaultValue;
+	
 
 	// factories
 	private static Factory<Body> _bodyFactory;
@@ -75,14 +81,15 @@ public class Main {
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
-
+			
 			parseHelpOption(line, cmdLineOptions);
 			parseInFileOption(line);
 			// TODO add support of -o, -eo, and -s (define corresponding parse methods)
 			parseOutFileOption(line);
 			parseExpectedOutFileOption(line);
 			parseSteps(line);
-
+			parseModeOption(line);
+			
 			parseDeltaTimeOption(line);
 			parseForceLawsOption(line);
 			parseStateComparatorOption(line);
@@ -122,6 +129,12 @@ public class Main {
 		
 		cmdLineOptions.addOption(Option.builder("s").longOpt("steps").hasArg().desc("An integer representing the number of " + 
 				"simulation steps. Default value: 150").build());
+		
+		// mode 
+		
+		cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg().desc("Execution Mode. Possible values: ’batch’" + 
+				"(Batch mode), ’gui’ (Graphical User" + 
+				"Interface mode). Default value: ’batch’").build());
 
 		// delta-time
 		cmdLineOptions.addOption(Option.builder("dt").longOpt("delta-time").hasArg()
@@ -173,21 +186,21 @@ public class Main {
 
 	private static void parseInFileOption(CommandLine line) throws ParseException {
 		_inFile = line.getOptionValue("i");
-		if (_inFile == null) {
+		if (_inFile == null && _mode == "batch") {
 			throw new ParseException("In batch mode an input file of bodies is required");
 		}
 	}
 	
 	private static void parseOutFileOption(CommandLine line) throws ParseException {
-		_outFile = line.getOptionValue("o");
+		if (_mode == "batch") _outFile = line.getOptionValue("o");
 	}
 	
 	private static void parseExpectedOutFileOption(CommandLine line) throws ParseException {
-		_expectedOut = line.getOptionValue("eo");
+		if (_mode == "batch") _expectedOut = line.getOptionValue("eo");
 	}
 	
 	private static void parseSteps(CommandLine line) throws ParseException {
-		_steps = Integer.parseInt(line.getOptionValue("s"));
+		if (_mode == "batch") _steps = Integer.parseInt(line.getOptionValue("s"));
 	}
 
 	private static void parseDeltaTimeOption(CommandLine line) throws ParseException {
@@ -253,6 +266,17 @@ public class Main {
 			throw new ParseException("Invalid state comparator: " + scmp);
 		}
 	}
+	
+	private static void parseModeOption(CommandLine line) throws ParseException {
+		String m = line.getOptionValue("m", _modeDefaultValue);
+		if (!m.equalsIgnoreCase("batch") && !m.equalsIgnoreCase("gui")) {
+			throw new ParseException("Invalid mode: " + m);
+		}
+		else {
+			_mode = m.toLowerCase();
+		}
+	}
+	
 
 	private static void startBatchMode() throws Exception {
 		PhysicsSimulator simulator = new PhysicsSimulator(_dtime, _forceLawsFactory.createInstance(_forceLawsInfo)); // Se crea el simulador
@@ -270,14 +294,38 @@ public class Main {
 		}
 		StateComparator comp = null;
 		if(_expectedOut != null) comp  = _stateComparatorFactory.createInstance(_stateComparatorInfo); // Se crea el comparador
-		Controller controller = new Controller(_bodyFactory, simulator); // Se crea el controller
+		Controller controller = new Controller(_bodyFactory, null, simulator); // Se crea el controller
 		controller.loadBodies(in); // Se anyaden los cuerpos al simulador
 		controller.run(_steps, out, expOut, comp); // Se inicia el simulador
+	}
+	
+	private static void startGUIMode() throws Exception {
+		PhysicsSimulator simulator = new PhysicsSimulator(_dtime, _forceLawsFactory.createInstance(_forceLawsInfo)); // Se crea el simulador
+		InputStream in = null;
+		
+		Controller controller = new Controller(_bodyFactory, _forceLawsFactory, simulator); // Se crea el controller
+		if (_inFile != null) {
+			try{ // Se crean los ficheros de entrada y se comprueba que existan 
+				in = new FileInputStream(_inFile);
+			}catch(FileNotFoundException e) {
+				System.out.println(e.getMessage());
+				throw new Exception();
+			}
+			controller.loadBodies(in); // Se anyaden los cuerpos al simulador
+		}
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				new MainWindow(controller);
+			}
+		});
 	}
 
 	private static void start(String[] args) throws Exception {
 		parseArgs(args);
-		startBatchMode();
+		if (_mode == "batch") startBatchMode();
+		else startGUIMode();
 	}
 
 	public static void main(String[] args) {
