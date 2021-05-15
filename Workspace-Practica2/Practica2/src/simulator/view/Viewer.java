@@ -124,8 +124,28 @@ public class Viewer extends JComponent implements SimulatorObserver {
 		_centerX = getWidth() / 2;
 		_centerY = getHeight() / 2;
 		// TODO draw a cross at center
+		gr.setColor(Color.red);
+		gr.drawLine(_centerX - 1, _centerY, _centerX + 1, _centerY);
+		gr.drawLine(_centerX, _centerY - 1, _centerX, _centerY + 1);
 		// TODO draw bodies (with vectors if _showVectors is true)
+		for(Body b: _bodies) {
+			gr.setColor(Color.blue);
+			gr.fillOval(_centerX + (int)(b.getPosition().getX()/_scale), _centerY - (int)(b.getPosition().getY()/_scale) , 2, 2);
+			if(_showVectors) {
+				drawLineWithArrow(g, (int)(b.getPosition().getX()/_scale), (int)(b.getPosition().getY()/_scale), 
+						(int)(b.getPosition().getX()/_scale) + (int)(b.getForce().direction().getX()), (int)(b.getPosition().getY()/_scale) + (int)(b.getForce().direction().getY()),
+						1, 1, Color.green, Color.green);
+				drawLineWithArrow(g, (int)(b.getPosition().getX()/_scale), (int)(b.getPosition().getY()/_scale), 
+						(int)(b.getPosition().getX()/_scale) + (int)(b.getForce().direction().getX()), (int)(b.getPosition().getY()/_scale) + (int)(b.getForce().direction().getY()),
+						1, 1, Color.green, Color.green);
+			}
+		}
 		// TODO draw help if _showHelp is true
+		if(_showHelp) {
+			gr.setColor(Color.red);
+			gr.drawString("h:toggle help, v: toggle vectors, +: zoom-in, -:zoom-out, =: fit \n"
+				+ "Satlin ratio: " + _scale, 1, 1);
+		}
 	}
 	
 	// other private/protected methods
@@ -169,23 +189,22 @@ public class Viewer extends JComponent implements SimulatorObserver {
 
 	@Override
 	public void onRegister(List<Body> bodies, double time, double dt, String fLawsDesc) {
-		// TODO Auto-generated method stub
-		
+		_bodies = bodies;
+		repaint();
 	}
 	@Override
 	public void onReset(List<Body> bodies, double time, double dt, String fLawsDesc) {
-		// TODO Auto-generated method stub
-		
+		_bodies = bodies;
+		repaint();
 	}
 	@Override
 	public void onBodyAdded(List<Body> bodies, Body b) {
-		// TODO Auto-generated method stub
-		
+		_bodies = bodies;
+		repaint();
 	}
 	@Override
 	public void onAdvance(List<Body> bodies, double time) {
-		// TODO Auto-generated method stub
-		
+		repaint();
 	}
 	@Override
 	public void onDeltaTimeChanged(double dt) {
