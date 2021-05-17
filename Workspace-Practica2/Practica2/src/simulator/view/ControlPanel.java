@@ -35,7 +35,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 	}
 	private void initGUI() {
 		bar = new JToolBar();
-		this.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		ImageIcon im1 = new ImageIcon("resources/icons/open.png");
 		ImageIcon im2 = new ImageIcon("resources/icons/physics.png");
@@ -144,6 +144,9 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		bar.add(dtText);
 		bar.add(dt);
 		
+		this.add(bar);
+		this.setVisible(true);
+		
 	}
 	
 	private void run_sim(int n) {
@@ -152,7 +155,11 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 				// _ctrl.run(1);
 			} catch (Exception e) {
 				// TODO show the error in a dialog box
-				// TODO enable all buttons
+				bar.getComponent(1).setEnabled(true);
+				bar.getComponent(2).setEnabled(true);
+				bar.getComponent(3).setEnabled(true);
+				bar.getComponent(5).setEnabled(true);
+				
 				_stopped = true;
 				return;
 			}
@@ -164,7 +171,10 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 			});
 		} else {
 			_stopped = true;
-			// TODO enable all buttons
+			bar.getComponent(1).setEnabled(true);
+			bar.getComponent(2).setEnabled(true);
+			bar.getComponent(3).setEnabled(true);
+			bar.getComponent(5).setEnabled(true);
 		}
 	}
 	// SimulatorObserver methods
