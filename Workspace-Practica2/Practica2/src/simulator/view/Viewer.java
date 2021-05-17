@@ -144,7 +144,7 @@ public class Viewer extends JComponent implements SimulatorObserver {
 		if(_showHelp) {
 			gr.setColor(Color.red);
 			gr.drawString("h:toggle help, v: toggle vectors, +: zoom-in, -:zoom-out, =: fit \n"
-				+ "Satlin ratio: " + _scale, 1, 1);
+				+ "Satlin ratio: " + _scale, 10, 25);
 		}
 	}
 	

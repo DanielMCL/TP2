@@ -23,8 +23,13 @@ public class BodiesTable extends JPanel {
 
 		BodiesTableModel tableModel = new BodiesTableModel(ctrl);
 		JTable table = new JTable(tableModel);
-		JScrollPane scrollPane = new JScrollPane(table);
+		table.setBackground(Color.white);
 		
-		this.add(scrollPane, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.getViewport().setBackground(Color.white);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
+		this.add(scrollPane);
 	}
 }
