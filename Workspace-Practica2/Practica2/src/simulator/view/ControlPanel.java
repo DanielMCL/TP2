@@ -1,9 +1,15 @@
 package simulator.view;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -55,16 +61,22 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		JButton stop = new JButton(im4); 
 		stop.setToolTipText("Stop");
 		
-		JButton exit = new JButton(im5); 
-		exit.setToolTipText("Exit");
-		
 		JLabel stepsText = new JLabel("Steps:");
 		
 		JSpinner steps = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		steps.setPreferredSize(new Dimension(70, 40));
+		steps.setMaximumSize(new Dimension(70, 40));
+
 		
 		JLabel dtText = new JLabel("Delta-Time:");
 		
 		JTextField dt = new JTextField();
+		dt.setPreferredSize(new Dimension(70, 40));
+		dt.setMaximumSize(new Dimension(70, 40));
+
+		
+		JButton exit = new JButton(im5); 
+		exit.setToolTipText("Exit");
 		
 		// Acciones de los botones
 		
@@ -73,10 +85,20 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 			@Override
 			public void actionPerformed(ActionEvent ae) {
 				JFileChooser fc = new JFileChooser();
+				int ret = fc.showOpenDialog(bar);
 				
-				
+				if (ret == JFileChooser.APPROVE_OPTION) {
+					_ctrl.reset();
+					try {
+						_ctrl.loadBodies(new FileInputStream(fc.getSelectedFile()));
+					} catch (FileNotFoundException e) { // Habrá que cambiar eso
+						e.printStackTrace();
+					}
+				} 
+				else {
+					JOptionPane.showMessageDialog(bar, "Se ha pulsado cancelar o ha ocurrido un error.");
+				}
 			}
-			
 		};
 		open.addActionListener(openAction);
 		
@@ -97,10 +119,21 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 				open.setEnabled(false);
 				physics.setEnabled(false);
 				run.setEnabled(false);
+				dt.setEnabled(false);
+				steps.setEnabled(false);
 				exit.setEnabled(false);
 				
-				_ctrl.setDeltaTime(Integer.parseInt(dt.getText()));
-				run_sim(Integer.parseInt(steps.getValue().toString()));
+				double det;
+				if (dt.getText() != null) {
+					det = Double.parseDouble(dt.getText());
+				}
+				else {
+					det = 0.0;
+				}
+				int st = Integer.parseInt(steps.getValue().toString());
+				
+				_ctrl.setDeltaTime(det);
+				run_sim(st);
 				
 			}
 			
@@ -135,14 +168,21 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		exit.addActionListener(exitAction);
 		
 		bar.add(open);
+		bar.addSeparator();
 		bar.add(physics);
+		bar.addSeparator();
 		bar.add(run);
 		bar.add(stop);
-		bar.add(exit);
+		bar.addSeparator(new Dimension(5, 40));
 		bar.add(stepsText);
+		bar.addSeparator(new Dimension(5, 40));
 		bar.add(steps);
+		bar.addSeparator(new Dimension(5, 40));
 		bar.add(dtText);
+		bar.addSeparator(new Dimension(5, 40));
 		bar.add(dt);
+		bar.add(Box.createGlue());
+		bar.add(exit);
 		
 		this.add(bar);
 		this.setVisible(true);
@@ -155,10 +195,12 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 				// _ctrl.run(1);
 			} catch (Exception e) {
 				// TODO show the error in a dialog box
-				bar.getComponent(1).setEnabled(true);
+				bar.getComponent(0).setEnabled(true);
 				bar.getComponent(2).setEnabled(true);
-				bar.getComponent(3).setEnabled(true);
-				bar.getComponent(5).setEnabled(true);
+				bar.getComponent(4).setEnabled(true);
+				bar.getComponent(9).setEnabled(true);
+				bar.getComponent(13).setEnabled(true);
+				bar.getComponent(15).setEnabled(true);
 				
 				_stopped = true;
 				return;
@@ -171,10 +213,12 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 			});
 		} else {
 			_stopped = true;
-			bar.getComponent(1).setEnabled(true);
+			bar.getComponent(0).setEnabled(true);
 			bar.getComponent(2).setEnabled(true);
-			bar.getComponent(3).setEnabled(true);
-			bar.getComponent(5).setEnabled(true);
+			bar.getComponent(4).setEnabled(true);
+			bar.getComponent(9).setEnabled(true);
+			bar.getComponent(13).setEnabled(true);
+			bar.getComponent(15).setEnabled(true);
 		}
 	}
 	// SimulatorObserver methods
@@ -182,7 +226,6 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 	@Override
 	public void onRegister(List<Body> bodies, double time, double dt, String fLawsDesc) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onReset(List<Body> bodies, double time, double dt, String fLawsDesc) {
