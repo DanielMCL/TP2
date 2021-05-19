@@ -13,6 +13,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -32,10 +33,17 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 	private Controller _ctrl;
 	private boolean _stopped;
 	private JToolBar bar;
+	private JButton open;
+	private JButton physics;
+	private JButton run;
+	private JButton stop;
+	private JButton exit;
+	private JSpinner steps;
+	private JTextField dtime;
 	
 	public ControlPanel(Controller ctrl) {
 		_ctrl = ctrl;
-		_stopped = true;
+		_stopped = false;
 		initGUI();
 		_ctrl.addObserver(this);
 	}
@@ -49,33 +57,33 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		ImageIcon im4 = new ImageIcon("resources/icons/stop.png");
 		ImageIcon im5 = new ImageIcon("resources/icons/exit.png");
 		
-		JButton open = new JButton(im1); 
+		open = new JButton(im1); 
 		open.setToolTipText("Open file");
 		
-		JButton physics = new JButton(im2);
+		physics = new JButton(im2);
 		physics.setToolTipText("Change the law of physics");
 		
-		JButton run = new JButton(im3); 
+		run = new JButton(im3); 
 		run.setToolTipText("Run");
 		
-		JButton stop = new JButton(im4); 
+		stop = new JButton(im4); 
 		stop.setToolTipText("Stop");
 		
 		JLabel stepsText = new JLabel("Steps:");
 		
-		JSpinner steps = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		steps = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
 		steps.setPreferredSize(new Dimension(70, 40));
 		steps.setMaximumSize(new Dimension(70, 40));
 
 		
 		JLabel dtText = new JLabel("Delta-Time:");
 		
-		JTextField dt = new JTextField();
-		dt.setPreferredSize(new Dimension(70, 40));
-		dt.setMaximumSize(new Dimension(70, 40));
+		dtime = new JTextField();
+		dtime.setPreferredSize(new Dimension(70, 40));
+		dtime.setMaximumSize(new Dimension(70, 40));
 
 		
-		JButton exit = new JButton(im5); 
+		exit = new JButton(im5); 
 		exit.setToolTipText("Exit");
 		
 		// Acciones de los botones
@@ -106,7 +114,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				
+				JDialog dia = new JDialog(SwingUtilities.getWindowAncestor(ControlPanel.this));
 			}
 			
 		};
@@ -116,23 +124,32 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 
 			@Override
 			public void actionPerformed(ActionEvent ae) {
+				_stopped = false;
+				
+				double det;
+				if (dtime.getText() == null) {
+					det = 0.0;
+					_ctrl.setDeltaTime(det);
+				}
+				else {
+					det = Double.parseDouble(dtime.getText());
+					if (det < 0) {
+						JOptionPane.showMessageDialog(ControlPanel.this,
+								"Invalid value of delta-time" , "Incorrect arguments",
+								JOptionPane.ERROR_MESSAGE);
+					}
+					else _ctrl.setDeltaTime(det);
+				}
+				
+				int st = Integer.parseInt(steps.getValue().toString());
+				
 				open.setEnabled(false);
 				physics.setEnabled(false);
 				run.setEnabled(false);
-				dt.setEnabled(false);
+				dtime.setEnabled(false);
 				steps.setEnabled(false);
 				exit.setEnabled(false);
 				
-				double det;
-				if (dt.getText() != null) {
-					det = Double.parseDouble(dt.getText());
-				}
-				else {
-					det = 0.0;
-				}
-				int st = Integer.parseInt(steps.getValue().toString());
-				
-				_ctrl.setDeltaTime(det);
 				run_sim(st);
 				
 			}
@@ -180,7 +197,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		bar.addSeparator(new Dimension(5, 40));
 		bar.add(dtText);
 		bar.addSeparator(new Dimension(5, 40));
-		bar.add(dt);
+		bar.add(dtime);
 		bar.add(Box.createGlue());
 		bar.add(exit);
 		
@@ -192,15 +209,18 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 	private void run_sim(int n) {
 		if ( n>0 && !_stopped ) {
 			try {
-				// _ctrl.run(1);
+				_ctrl.run(1);
 			} catch (Exception e) {
-				// TODO show the error in a dialog box
-				bar.getComponent(0).setEnabled(true);
-				bar.getComponent(2).setEnabled(true);
-				bar.getComponent(4).setEnabled(true);
-				bar.getComponent(9).setEnabled(true);
-				bar.getComponent(13).setEnabled(true);
-				bar.getComponent(15).setEnabled(true);
+				JOptionPane.showMessageDialog(this,
+						e.getMessage(), "Execution error",
+						JOptionPane.ERROR_MESSAGE);
+				
+				open.setEnabled(true);
+				physics.setEnabled(true);
+				run.setEnabled(true);
+				dtime.setEnabled(true);
+				steps.setEnabled(true);
+				exit.setEnabled(true);
 				
 				_stopped = true;
 				return;
@@ -213,39 +233,37 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 			});
 		} else {
 			_stopped = true;
-			bar.getComponent(0).setEnabled(true);
-			bar.getComponent(2).setEnabled(true);
-			bar.getComponent(4).setEnabled(true);
-			bar.getComponent(9).setEnabled(true);
-			bar.getComponent(13).setEnabled(true);
-			bar.getComponent(15).setEnabled(true);
+			
+			open.setEnabled(true);
+			physics.setEnabled(true);
+			run.setEnabled(true);
+			dtime.setEnabled(true);
+			steps.setEnabled(true);
+			exit.setEnabled(true);
+			
 		}
 	}
 	// SimulatorObserver methods
 	// ...
 	@Override
 	public void onRegister(List<Body> bodies, double time, double dt, String fLawsDesc) {
-		// TODO Auto-generated method stub
+		dtime.setText(Double.toString(dt));
 	}
 	@Override
 	public void onReset(List<Body> bodies, double time, double dt, String fLawsDesc) {
-		// TODO Auto-generated method stub
-		
+		dtime.setText(Double.toString(dt));
 	}
 	@Override
 	public void onBodyAdded(List<Body> bodies, Body b) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onAdvance(List<Body> bodies, double time) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onDeltaTimeChanged(double dt) {
-		// TODO Auto-generated method stub
-		
+		dtime.setText(Double.toString(dt));
 	}
 	@Override
 	public void onForceLawsChanged(String fLawsDesc) {

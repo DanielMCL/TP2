@@ -57,14 +57,13 @@ public class Controller {
 		}
 		p.println("]");
 		p.println("}");
-	} // Recordar que cuando se llame desde la GUI hay que pasar
-	/*
-	 new OutputStream() {
-		@Override
-		public void write(int b) throws IOException {
-	 	};
-	 }
-	 */
+	} 
+	
+	public void run(int n) {
+		for (int i = 1; i <= n; ++i) {
+			_simulator.advance(); // Avanzamos un ciclo en el simulador
+		}
+	}
 	
 	public void reset() {
 		_simulator.reset();
