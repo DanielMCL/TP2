@@ -26,6 +26,6 @@ public class NoForceBuilder extends Builder<ForceLaws> {
 	}
 
 	public String getDesc() {
-		return "No forces are applied";
+		return "No force";
 	}
 }

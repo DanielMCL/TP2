@@ -1,7 +1,6 @@
 package simulator.view;
 
-import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
@@ -9,21 +8,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+
+import org.json.JSONObject;
 
 import simulator.control.Controller;
 import simulator.model.Body;
@@ -86,6 +74,8 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		exit = new JButton(im5); 
 		exit.setToolTipText("Exit");
 		
+		ForceLawsDialog fld = new ForceLawsDialog((Frame) SwingUtilities.getWindowAncestor(this), _ctrl.getForceLawsInfo());
+		
 		// Acciones de los botones
 		
 		ActionListener openAction = new ActionListener() {
@@ -111,10 +101,19 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		open.addActionListener(openAction);
 		
 		ActionListener physicsAction = new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent ae) {
-				JDialog dia = new JDialog(SwingUtilities.getWindowAncestor(ControlPanel.this));
+				int status = fld.open();
+				if (status == 1) {
+					try {
+						_ctrl.setForceLaws(new JSONObject(fld.getJSON()));
+					}
+					catch (Exception e) {
+						JOptionPane.showMessageDialog(ControlPanel.this,
+								"Wrong arguments" , "Could not change the Force Law",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				}
 			}
 			
 		};

@@ -43,6 +43,6 @@ public class MovingTowardsFixedPointBuilder extends Builder<ForceLaws> {
 	}
 
 	public String getDesc() {
-		return "Gravity pull towards one point";
+		return "Moving towards a fixed point";
 	}
 }
