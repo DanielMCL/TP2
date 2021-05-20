@@ -1,6 +1,8 @@
 package simulator.view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -11,7 +13,9 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.border.TitledBorder;
 
 import simulator.control.Controller;
 import simulator.misc.Vector2D;
@@ -31,7 +35,10 @@ public class Viewer extends JComponent implements SimulatorObserver {
 		ctrl.addObserver(this);
 	}
 	private void initGUI() {
-		// TODO add border with title
+		setLayout(new BorderLayout());
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black, 3), "Viewer", TitledBorder.LEFT, TitledBorder.TOP));
+		setPreferredSize(new Dimension(800, 600));
+		
 		_bodies = new ArrayList<>();
 		_scale = 1.0;
 		_showHelp = true;
@@ -125,26 +132,28 @@ public class Viewer extends JComponent implements SimulatorObserver {
 		_centerY = getHeight() / 2;
 		// TODO draw a cross at center
 		gr.setColor(Color.red);
-		gr.drawLine(_centerX - 1, _centerY, _centerX + 1, _centerY);
-		gr.drawLine(_centerX, _centerY - 1, _centerX, _centerY + 1);
+		gr.drawLine(_centerX - 10, _centerY, _centerX + 10, _centerY);
+		gr.drawLine(_centerX, _centerY - 10, _centerX, _centerY + 10);
 		// TODO draw bodies (with vectors if _showVectors is true)
 		for(Body b: _bodies) {
-			gr.setColor(Color.blue);
-			gr.fillOval(_centerX + (int)(b.getPosition().getX()/_scale), _centerY - (int)(b.getPosition().getY()/_scale) , 2, 2);
 			if(_showVectors) {
-				drawLineWithArrow(g, (int)(b.getPosition().getX()/_scale), (int)(b.getPosition().getY()/_scale), 
-						(int)(b.getPosition().getX()/_scale) + (int)(b.getForce().direction().getX()), (int)(b.getPosition().getY()/_scale) + (int)(b.getForce().direction().getY()),
-						1, 1, Color.green, Color.green);
-				drawLineWithArrow(g, (int)(b.getPosition().getX()/_scale), (int)(b.getPosition().getY()/_scale), 
-						(int)(b.getPosition().getX()/_scale) + (int)(b.getForce().direction().getX()), (int)(b.getPosition().getY()/_scale) + (int)(b.getForce().direction().getY()),
-						1, 1, Color.green, Color.green);
+				drawLineWithArrow(g, (int)(b.getPosition().getX()/_scale) + _centerX, - (int)(b.getPosition().getY()/_scale) + _centerY, 
+						(int)(b.getPosition().getX()/_scale + b.getForce().direction().getX() * 20) + _centerX, 
+						- (int)(b.getPosition().getY()/_scale + b.getForce().direction().getY() * 20) + _centerY,
+						5, 5, Color.red, Color.red);
+				drawLineWithArrow(g, (int)(b.getPosition().getX()/_scale) + _centerX, - (int)(b.getPosition().getY()/_scale) + _centerY, 
+						(int)(b.getPosition().getX()/_scale + b.getVelocity().direction().getX() * 20) + _centerX, 
+						- (int)(b.getPosition().getY()/_scale + b.getVelocity().direction().getY() * 20) + _centerY,
+						5, 5, Color.green, Color.green);
 			}
+			gr.setColor(Color.blue);
+			gr.fillOval(_centerX + (int)(b.getPosition().getX()/_scale) - 5, _centerY - (int)(b.getPosition().getY()/_scale) - 5, 10, 10);
 		}
 		// TODO draw help if _showHelp is true
 		if(_showHelp) {
 			gr.setColor(Color.red);
-			gr.drawString("h:toggle help, v: toggle vectors, +: zoom-in, -:zoom-out, =: fit \n"
-				+ "Satlin ratio: " + _scale, 10, 25);
+			gr.drawString("h: toggle help, v: toggle vectors, +: zoom-in, -:zoom-out, =: fit \n"
+				+ "ratio: " + _scale, 10, 25);
 		}
 	}
 	
@@ -190,16 +199,19 @@ public class Viewer extends JComponent implements SimulatorObserver {
 	@Override
 	public void onRegister(List<Body> bodies, double time, double dt, String fLawsDesc) {
 		_bodies = bodies;
+		autoScale();
 		repaint();
 	}
 	@Override
 	public void onReset(List<Body> bodies, double time, double dt, String fLawsDesc) {
 		_bodies = bodies;
+		autoScale();
 		repaint();
 	}
 	@Override
 	public void onBodyAdded(List<Body> bodies, Body b) {
 		_bodies = bodies;
+		autoScale();
 		repaint();
 	}
 	@Override

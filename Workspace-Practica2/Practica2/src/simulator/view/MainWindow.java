@@ -2,6 +2,7 @@ package simulator.view;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -31,13 +32,18 @@ public class MainWindow extends JFrame {
 		
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+		centerPanel.setPreferredSize(new Dimension(300, 400));
 		
 		BodiesTable t = new BodiesTable(_ctrl);
+		t.setPreferredSize(new Dimension(100, 400));
 		centerPanel.add(t);
 		
-		Viewer v = new Viewer(_ctrl);
-		centerPanel.add(v);
 		
+		Viewer v = new Viewer(_ctrl);
+		v.setPreferredSize(new Dimension(200, 400));
+		centerPanel.add(v);
+	
 		mainPanel.add(centerPanel, BorderLayout.CENTER);
 	
 		this.pack();
