@@ -30,12 +30,7 @@ public class MovingTowardsFixedPointBuilder extends Builder<ForceLaws> {
 		data.put("c", "the point towards which bodies move (a json list of 2 numbers, e.g., [100.0,50.0])");
 		data.put("g", "the length of the acceleration vector (a number)");
 		
-		JSONObject json = new JSONObject();
-		json.put("type", "mtfp");
-		json.put("data", data);
-		json.put("desc", "Moving towards a fixed point");
-		
-		return json;
+		return data;
 	}
 	
 	public String getType() {

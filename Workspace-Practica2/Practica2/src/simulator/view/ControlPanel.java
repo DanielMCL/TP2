@@ -106,7 +106,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 				int status = fld.open();
 				if (status == 1) {
 					try {
-						_ctrl.setForceLaws(new JSONObject(fld.getJSON()));
+						_ctrl.setForceLaws(fld.getJSON());
 					}
 					catch (Exception e) {
 						JOptionPane.showMessageDialog(ControlPanel.this,

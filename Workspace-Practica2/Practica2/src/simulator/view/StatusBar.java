@@ -56,20 +56,20 @@ public class StatusBar extends JPanel implements SimulatorObserver {
 
 	@Override
 	public void onReset(List<Body> bodies, double time, double dt, String fLawsDesc) {
-		_currTime = new JLabel("Time:  0.0");
-		_currLaws = new JLabel("Laws:  " + INI_LAW + " with " + INI_CONST);
-		_numOfBodies = new JLabel("Bodies:  " + INI_BODIES);
+		_currTime.setText("Time:  0.0");
+		_currLaws.setText("Laws:  " + INI_LAW + " with " + INI_CONST);
+		_numOfBodies.setText("Bodies:  " + INI_BODIES);
 	}
 
 	@Override
 	public void onBodyAdded(List<Body> bodies, Body b) {
-		_numOfBodies = new JLabel("Bodies:  " + bodies.size());
+		_numOfBodies.setText("Bodies:  " + bodies.size());
 	}
 
 	@Override
 	public void onAdvance(List<Body> bodies, double time) {
-		_numOfBodies = new JLabel("Bodies:  " + bodies.size());
-		_currTime = new JLabel("Time:  " + time);
+		_numOfBodies.setText("Bodies:  " + bodies.size());
+		_currTime.setText("Time:  " + time);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class StatusBar extends JPanel implements SimulatorObserver {
 
 	@Override
 	public void onForceLawsChanged(String fLawsDesc) {
-		_currLaws = new JLabel("Laws:  " + fLawsDesc);
+		_currLaws.setText("Laws:  " + fLawsDesc);
 	}
 
 }

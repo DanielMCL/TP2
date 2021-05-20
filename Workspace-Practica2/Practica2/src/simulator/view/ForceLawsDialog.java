@@ -7,6 +7,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import simulator.misc.Vector2D;
@@ -42,10 +43,7 @@ class ForceLawsDialog extends JDialog {
 		String[][] _data;
 
 		JsonTableModel() {
-			_data = new String[_forceLawsInfo.get(_selectedLawsIndex).getJSONObject("data").keySet().size()][3];
-			// inicializamos con la cadena vacía
 			initTable();
-
 		}
 
 		public void clear() {
@@ -56,6 +54,8 @@ class ForceLawsDialog extends JDialog {
 		}
 		
 		public void initTable() {
+			_data = new String[_forceLawsInfo.get(_selectedLawsIndex).getJSONObject("data").keySet().size()][3];
+			
 			if (_selectedLawsIndex == 0) {
 				setValueAt("G", 0, 0);
 				setValueAt(6.67E-11, 0, 1);
@@ -113,28 +113,25 @@ class ForceLawsDialog extends JDialog {
 		// string value they should add the quotes as well as part of the
 		// value (2nd column).
 		//
-		public String getData() {
-			StringBuilder s = new StringBuilder();
-			s.append("type" + '"' + " : " + _forceLawsInfo.get(_selectedLawsIndex).getString("type") + '"' + ", ");
-			s.append('"' + "data" + '"' + " : ");
-			s.append('{');
+		public JSONObject getData() {
+			JSONObject j = new JSONObject();
+			j.put("type", _forceLawsInfo.get(_selectedLawsIndex).getString("type"));
+			
+			JSONObject j2 = new JSONObject();
+			
 			for (int i = 0; i < _data.length; i++) {
 				// Si hay datos en las dos columnas
 				if (!_data[i][0].isEmpty() && !_data[i][1].isEmpty() && !_data[i][2].isEmpty()) {
-					s.append('"');
-					s.append(_data[i][0]);
-					s.append('"');
-					s.append(':');
-					s.append(_data[i][1]);
-					s.append(',');
+					/*if(_data[i][0].equals("c")) {
+						
+					}
+					else*/
+						j2.put(_data[i][0], _data[i][1]);
 				}
 			}
-			// Quita la "," y pone la "}"
-			if (s.length() > 1)
-				s.deleteCharAt(s.length() - 1);
-			s.append("} ");
-			s.append('"' + "desc" + " : " + _forceLawsInfo.get(_selectedLawsIndex).getString("desc"));
-			return s.toString();
+			j.put("data", j2);
+			j.put("desc", _forceLawsInfo.get(_selectedLawsIndex).getString("desc"));
+			return j;
 		}
 	}
 
@@ -143,10 +140,6 @@ class ForceLawsDialog extends JDialog {
 		_forceLawsInfo = flInfo;
 		initGUI();
 	}
-
-	
-	
-
 
 	private void initGUI() {
 
@@ -260,7 +253,7 @@ class ForceLawsDialog extends JDialog {
 		return _status;
 	}
 
-	public String getJSON() {
+	public JSONObject getJSON() {
 		return _dataTableModel.getData();
 	}
 

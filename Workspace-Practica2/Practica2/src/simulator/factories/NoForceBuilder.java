@@ -13,12 +13,8 @@ public class NoForceBuilder extends Builder<ForceLaws> {
 	public JSONObject createData() { // Se devuelve un json con las claves necesarias (ninguna)
 		JSONObject data = new JSONObject();
 		
-		JSONObject json = new JSONObject();
-		json.put("type", "ng");
-		json.put("data", data);
-		json.put("desc", "No force");
 		
-		return json;
+		return data;
 	}
 
 	public String getType() {
