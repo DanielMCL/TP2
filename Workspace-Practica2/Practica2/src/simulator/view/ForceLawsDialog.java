@@ -25,7 +25,6 @@ class ForceLawsDialog extends JDialog {
 
 	private int _status;
 	private JsonTableModel _dataTableModel;
-	private JComboBox _combo;
 	private List<JSONObject> _forceLawsInfo;
 	private int _selectedLawsIndex;
 
@@ -164,12 +163,16 @@ class ForceLawsDialog extends JDialog {
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		this.setContentPane(mainPanel);
 		
-		JLabel label = new JLabel();
 		String[] laws = new String[_forceLawsInfo.size()]; int i = 0;
 		for (JSONObject jo: _forceLawsInfo) {
 			laws[i] = jo.getString("desc");
 			i++;
 		}
+				
+		JLabel law = new JLabel("Force law: ");
+		law.setAlignmentX(CENTER_ALIGNMENT);
+		law.setAlignmentY(CENTER_ALIGNMENT);
+		JLabel label = new JLabel();
 		JComboBox <String> combo = new JComboBox<String>(laws);
 		combo.addActionListener(new ActionListener() {
 			@Override
@@ -180,21 +183,18 @@ class ForceLawsDialog extends JDialog {
 				_dataTableModel.initTable();
 			}
 		});
-		
 		combo.setAlignmentX(CENTER_ALIGNMENT);
 		combo.setAlignmentY(CENTER_ALIGNMENT);
-		mainPanel.add(combo);
+
+		JPanel comboPanel = new JPanel();
+		comboPanel.add(law);
+		comboPanel.add(combo);
 
 		// help
 		JLabel help = new JLabel("Select a force law and provide values for the parameters"
-				+ " in the value column (default values are used for the parameters with no value");
-
+				+ " in the value column (default values are used for the parameters with no value)");
 		help.setAlignmentX(CENTER_ALIGNMENT);
 		help.setAlignmentY(TOP_ALIGNMENT);
-		mainPanel.add(help);
-
-		mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-
 		// data table
 		
 		_dataTableModel = new JsonTableModel();
@@ -202,32 +202,31 @@ class ForceLawsDialog extends JDialog {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-				// La siguiente línea me da el componente da la celda row,column
+				// La siguiente linea me da el componente da la celda row,column
 				Component component = super.prepareRenderer(renderer, row, column);
 
-				// La siguiente línea me da el ancho del contenido de la celda
+				// La siguiente linea me da el ancho del contenido de la celda
 				int rendererWidth = component.getPreferredSize().width;
 
 				// Cojo la columna
 				TableColumn tableColumn = getColumnModel().getColumn(column);
 
-				// Y el tamaño será el máximo entre el contenido y el tamaño actual
+				// Y el tamanyo sera� el maximo entre el contenido y el tamanyo actual
 				tableColumn.setPreferredWidth(Math.max(rendererWidth, tableColumn.getPreferredWidth()));
 				return component;
 			}
+			
+			
 		};
 		
 		JScrollPane tabelScroll = new JScrollPane(dataTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		mainPanel.add(tabelScroll);
 
-		mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
 		// bottons
 		JPanel buttonsPanel = new JPanel();
 		buttonsPanel.setAlignmentX(CENTER_ALIGNMENT);
 		buttonsPanel.setAlignmentY(BOTTOM_ALIGNMENT);
-		mainPanel.add(buttonsPanel);
 
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
@@ -251,7 +250,15 @@ class ForceLawsDialog extends JDialog {
 		});
 		buttonsPanel.add(okButton);
 
-		this.setPreferredSize(new Dimension(400, 400));
+		mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+		mainPanel.add(help);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+		mainPanel.add(tabelScroll);
+		mainPanel.add(comboPanel);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+		mainPanel.add(buttonsPanel);
+
+		this.setPreferredSize(new Dimension(700, 400));
 
 		this.pack();
 		this.setResizable(true); // change to 'true' if you want to allow resizing

@@ -51,7 +51,7 @@ public class StatusBar extends JPanel implements SimulatorObserver {
 
 	@Override
 	public void onRegister(List<Body> bodies, double time, double dt, String fLawsDesc) {
-		// TODO Auto-generated method stub
+		_currLaws.setText("Laws:  " + fLawsDesc);
 	}
 
 	@Override

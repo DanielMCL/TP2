@@ -18,8 +18,9 @@ public class PhysicsSimulator {
 			stepTime = t;
 		else
 			throw new IllegalArgumentException("Invalid time value");
-		if(f != null) // La fuerza tiene que haberse pasado
+		if(f != null) { // La fuerza tiene que haberse pasado
 			forceLaw = f;
+		}
 		else
 			throw new IllegalArgumentException("ForceLaws not initialized");
 		

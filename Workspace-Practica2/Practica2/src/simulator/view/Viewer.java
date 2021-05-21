@@ -37,7 +37,7 @@ public class Viewer extends JComponent implements SimulatorObserver {
 	private void initGUI() {
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black, 3), "Viewer", TitledBorder.LEFT, TitledBorder.TOP));
-		setPreferredSize(new Dimension(800, 600));
+		setPreferredSize(new Dimension(1000, 800));
 		
 		_bodies = new ArrayList<>();
 		_scale = 1.0;

@@ -59,7 +59,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		
 		JLabel stepsText = new JLabel("Steps:");
 		
-		steps = new JSpinner(new SpinnerNumberModel(0, 0, 50000, 100));
+		steps = new JSpinner(new SpinnerNumberModel(10000, 0, 50000, 100));
 		steps.setPreferredSize(new Dimension(70, 40));
 		steps.setMaximumSize(new Dimension(70, 40));
 
@@ -90,12 +90,9 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 					try {
 						_ctrl.loadBodies(new FileInputStream(fc.getSelectedFile()));
 					} catch (FileNotFoundException e) { // Habrá que cambiar eso
-						e.printStackTrace();
+						JOptionPane.showMessageDialog(bar, "Failed to load a file");
 					}
 				} 
-				else {
-					JOptionPane.showMessageDialog(bar, "Se ha pulsado cancelar o ha ocurrido un error.");
-				}
 			}
 		};
 		open.addActionListener(openAction);

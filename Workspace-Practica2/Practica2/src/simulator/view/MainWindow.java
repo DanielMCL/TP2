@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,15 +34,15 @@ public class MainWindow extends JFrame {
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
-		centerPanel.setPreferredSize(new Dimension(300, 400));
+		centerPanel.setPreferredSize(new Dimension(800, 400));
 		
 		BodiesTable t = new BodiesTable(_ctrl);
-		t.setPreferredSize(new Dimension(100, 400));
+		t.setPreferredSize(new Dimension(800, 400));
 		centerPanel.add(t);
 		
 		
 		Viewer v = new Viewer(_ctrl);
-		v.setPreferredSize(new Dimension(200, 400));
+		v.setPreferredSize(new Dimension(800, 1000));
 		centerPanel.add(v);
 	
 		mainPanel.add(centerPanel, BorderLayout.CENTER);
