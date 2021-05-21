@@ -122,10 +122,24 @@ class ForceLawsDialog extends JDialog {
 			for (int i = 0; i < _data.length; i++) {
 				// Si hay datos en las dos columnas
 				if (!_data[i][0].isEmpty() && !_data[i][1].isEmpty() && !_data[i][2].isEmpty()) {
-					/*if(_data[i][0].equals("c")) {
-						
+					if(_data[i][0].equals("c")) {
+						char[] c = _data[i][1].toCharArray();
+						char[] c1 = new char[c.length - 3];
+						char[] c2 = new char[c.length - 3];
+						int k = 1;
+						while(c[k] != ',') {
+							c1[k - 1] = c[k];
+							++k;
+						}
+						++k;
+						int mitad = k;
+						while(k < c.length - 1) {
+							c2[k - mitad] = c[k];
+							++k;
+						}
+						j2.put(_data[i][0], new Vector2D(Double.parseDouble(new String(c1)), Double.parseDouble(new String(c2))).asJSONArray());
 					}
-					else*/
+					else
 						j2.put(_data[i][0], _data[i][1]);
 				}
 			}
