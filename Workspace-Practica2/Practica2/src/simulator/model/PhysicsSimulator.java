@@ -1,6 +1,7 @@
 package simulator.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -25,7 +26,7 @@ public class PhysicsSimulator {
 			throw new IllegalArgumentException("ForceLaws not initialized");
 		
 		currentTime = 0;
-		bodyList = new ArrayList<Body>();
+		bodyList = Collections.unmodifiableList(new ArrayList<Body>());
 		observerList = new ArrayList<SimulatorObserver>();
 	}
 	
