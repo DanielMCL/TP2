@@ -1,0 +1,4 @@
+No cogía modo batch (==)
+El control panel tiene que coger la excepción cuando está mal el archivo de entrada
+Falta el arraylist de solo lectura
+Activar y desactivar botones con método
