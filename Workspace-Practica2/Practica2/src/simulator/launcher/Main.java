@@ -186,21 +186,21 @@ public class Main {
 
 	private static void parseInFileOption(CommandLine line) throws ParseException {
 		_inFile = line.getOptionValue("i");
-		if (_inFile == null && _mode == "batch") {
+		if (_inFile == null && _mode.equals("batch")) {
 			throw new ParseException("In batch mode an input file of bodies is required");
 		}
 	}
 	
 	private static void parseOutFileOption(CommandLine line) throws ParseException {
-		if (_mode == "batch") _outFile = line.getOptionValue("o");
+		if (_mode.equalsIgnoreCase("batch")) _outFile = line.getOptionValue("o");
 	}
 	
 	private static void parseExpectedOutFileOption(CommandLine line) throws ParseException {
-		if (_mode == "batch") _expectedOut = line.getOptionValue("eo");
+		if (_mode.equalsIgnoreCase("batch")) _expectedOut = line.getOptionValue("eo");
 	}
 	
 	private static void parseSteps(CommandLine line) throws ParseException {
-		if (_mode == "batch") _steps = Integer.parseInt(line.getOptionValue("s"));
+		if (_mode.equalsIgnoreCase("batch")) _steps = Integer.parseInt(line.getOptionValue("s"));
 	}
 
 	private static void parseDeltaTimeOption(CommandLine line) throws ParseException {
@@ -324,7 +324,7 @@ public class Main {
 
 	private static void start(String[] args) throws Exception {
 		parseArgs(args);
-		if (_mode == "batch") startBatchMode();
+		if (_mode.equalsIgnoreCase("batch")) startBatchMode();
 		else startGUIMode();
 	}
 

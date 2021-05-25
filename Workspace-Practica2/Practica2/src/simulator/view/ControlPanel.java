@@ -138,13 +138,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 				}
 				
 				int st = Integer.parseInt(steps.getValue().toString());
-				
-				open.setEnabled(false);
-				physics.setEnabled(false);
-				run.setEnabled(false);
-				dtime.setEnabled(false);
-				steps.setEnabled(false);
-				exit.setEnabled(false);
+				setButtons(false);
 				
 				run_sim(st);
 				
@@ -211,12 +205,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 						e.getMessage(), "Execution error",
 						JOptionPane.ERROR_MESSAGE);
 				
-				open.setEnabled(true);
-				physics.setEnabled(true);
-				run.setEnabled(true);
-				dtime.setEnabled(true);
-				steps.setEnabled(true);
-				exit.setEnabled(true);
+				setButtons(true);
 				
 				_stopped = true;
 				return;
@@ -230,14 +219,17 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 		} else {
 			_stopped = true;
 			
-			open.setEnabled(true);
-			physics.setEnabled(true);
-			run.setEnabled(true);
-			dtime.setEnabled(true);
-			steps.setEnabled(true);
-			exit.setEnabled(true);
-			
+			setButtons(true);
 		}
+	}
+	
+	private void setButtons(boolean b) {
+		open.setEnabled(b);
+		physics.setEnabled(b);
+		run.setEnabled(b);
+		dtime.setEnabled(b);
+		steps.setEnabled(b);
+		exit.setEnabled(b);
 	}
 	// SimulatorObserver methods
 	// ...

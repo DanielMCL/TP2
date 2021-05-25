@@ -46,7 +46,7 @@ public class PhysicsSimulator {
 	
 	public void addBody(Body b) throws IllegalArgumentException{ // A�ade el cuerpo b al simulador
 		for (Body body: bodyList) {
-			if(body.getId()==b.getId()) {//CAMBIAR a equals
+			if(body.getId().equals(b.getId())) {//CAMBIAR a equals
 				throw new IllegalArgumentException("Duplicated body ID");
 			}
 		}

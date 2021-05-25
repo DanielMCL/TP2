@@ -2,7 +2,7 @@
   "bodies": [
  
     { 
-      "type" : "basic",
+      "type" : "a",
       "data" : {
 	             "id" : "b1",
      	         "p"  : [0.0e00,  4.5e10],
