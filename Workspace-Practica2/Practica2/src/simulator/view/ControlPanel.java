@@ -89,7 +89,7 @@ public class ControlPanel extends JPanel implements SimulatorObserver{
 					_ctrl.reset();
 					try {
 						_ctrl.loadBodies(new FileInputStream(fc.getSelectedFile()));
-					} catch (FileNotFoundException e) { // Habrá que cambiar eso
+					} catch (Exception e) {
 						JOptionPane.showMessageDialog(bar, "Failed to load a file");
 					}
 				} 

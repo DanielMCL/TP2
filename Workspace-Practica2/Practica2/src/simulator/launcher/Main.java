@@ -82,13 +82,13 @@ public class Main {
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
 			
+			parseModeOption(line);
 			parseHelpOption(line, cmdLineOptions);
 			parseInFileOption(line);
 			// TODO add support of -o, -eo, and -s (define corresponding parse methods)
 			parseOutFileOption(line);
 			parseExpectedOutFileOption(line);
 			parseSteps(line);
-			parseModeOption(line);
 			
 			parseDeltaTimeOption(line);
 			parseForceLawsOption(line);

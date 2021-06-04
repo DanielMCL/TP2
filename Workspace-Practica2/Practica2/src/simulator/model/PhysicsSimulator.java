@@ -11,6 +11,7 @@ public class PhysicsSimulator {
 	private double stepTime;
 	private ForceLaws forceLaw;
 	private List<Body> bodyList;
+	private List<Body> bodyListUnmodifiable;
 	private double currentTime;
 	private List<SimulatorObserver> observerList;
 	
@@ -26,7 +27,8 @@ public class PhysicsSimulator {
 			throw new IllegalArgumentException("ForceLaws not initialized");
 		
 		currentTime = 0;
-		bodyList = Collections.unmodifiableList(new ArrayList<Body>());
+		bodyList = new ArrayList<Body>();
+		bodyListUnmodifiable = Collections.unmodifiableList(bodyList);
 		observerList = new ArrayList<SimulatorObserver>();
 	}
 	
@@ -41,7 +43,7 @@ public class PhysicsSimulator {
 		currentTime += stepTime;
 		
 		for (SimulatorObserver o: observerList) {
-			o.onAdvance(bodyList, currentTime);
+			o.onAdvance(bodyListUnmodifiable, currentTime);
 		}
 	}
 	
@@ -53,7 +55,7 @@ public class PhysicsSimulator {
 		}
 		bodyList.add(b);
 		for (SimulatorObserver o: observerList) {
-			o.onBodyAdded(bodyList, b);
+			o.onBodyAdded(bodyListUnmodifiable, b);
 		}
 	}
 	
@@ -78,7 +80,7 @@ public class PhysicsSimulator {
 		currentTime = 0.0;
 		bodyList.clear();
 		for (SimulatorObserver o: observerList) {
-			o.onReset(bodyList, currentTime, stepTime, forceLaw.toString());
+			o.onReset(bodyListUnmodifiable, currentTime, stepTime, forceLaw.toString());
 		}
 	}
 	
@@ -101,7 +103,7 @@ public class PhysicsSimulator {
 	public void addObserver(SimulatorObserver o) {
 		if (!observerList.contains(o)) {
 			observerList.add(o);
-			o.onRegister(bodyList, currentTime, stepTime, forceLaw.toString());
+			o.onRegister(bodyListUnmodifiable, currentTime, stepTime, forceLaw.toString());
 		}
 		
 	}
